@@ -29,21 +29,25 @@ def _control_directory(ctx):
     """Controls CMIP5 directory pattern.""" 
     #pattern = re.compile(r'/prodigfs/esg/CMIP5/merge/([\w.-]+)/([\w.-]+)/([\w.-]+)/([\w.-]+)/([\w.-]+)/([\w.-]+)/([\w.-]+)/latest/([\w.-]+)/')
     pattern = re.compile(r'/data/glipsl/test_time_axis/([\w.-]+)/')
-    if not re.match(pattern, ctx.directory):
+    if re.match(pattern, ctx.directory) == None:
         print "ERROR: {0} does not follow CMIP5 DRS.".format(ctx.directory)
         sys.exit(1)
+    else:
+        for file in _get_file_list(ctx):
+            # Control filename pattern
+            _control_file(file) # Modifier le sys.exit
 
 
 def _control_file(file):
     """Controls CMIP5 file pattern.""" 
     pattern = re.compile(r'([\w.-]+)_([\w.-]+)_([\w.-]+)_([\w.-]+)_([\w.-]+)_([\d]+)-([\d]+).nc')
-    if not re.match(pattern, file): 
+    if re.match(pattern, file) == None: 
         print 'ERROR: Invalid filename (%s does not follow CMIP5 DRS).' % file
         sys.exit(1)
 
 
 def _get_file_list(ctx):
-    """Returns sorted list of files in directory."""
+    """Returns sorted list of filenames in directory."""
     return sorted(os.listdir(ctx.directory))
 
 
@@ -59,21 +63,18 @@ def _time_init(ctx):
     ctx.funits = _convert_time_units(ctx.tunits, ctx.frequency)
     data.close()
     if ctx.is_verbose:
-        print ''.center(100,'=')
-        print ''.center(100)
-        print ' DIRECTORY:'.ljust(40)+'{0}'.format(ctx.directory).rjust(60)
         print '   |'.ljust(100)
         print '   |--> Frequency:'.ljust(40)+'{0}'.format(ctx.frequency).rjust(60)
         print '   |--> Calendar:'.ljust(40)+'{0}'.format(ctx.calendar).rjust(60)
         print '   |--> Time units:'.ljust(40)+'{0}'.format(ctx.tunits).rjust(60)
-
+        print '   |'.ljust(100)
 
 
 def _is_instant_time_axis(filename, realm) :
    """Returns True if time time axis an instant axis."""
    need_instant_time = [('tas','3hr','atmos'),('uas','3hr','atmos'),('vas','3hr','atmos'),('huss','3hr','atmos'),('mrsos','3hr','land'),('tslsi','3hr','land'),('tso','3hr','ocean'),('ps','3hr','atmos'),('ua','6hrPlev','atmos'),('va','6hrPlev','atmos'),('ta','6hrPlev','atmos'),('psl','6hrPlev','atmos'),('clcalipso','cf3hr','atmos'),('clcalipso2','cf3hr','atmos'),('cfadDbze94','cf3hr','atmos'),('cfadLidarsr532','cf3hr','atmos'),('parasolRefl','cf3hr','atmos'),('cltcalipso','cf3hr','atmos'),('cllcalipso','cf3hr','atmos'),('clmcalipso','cf3hr','atmos'),('clhcalipso','cf3hr','atmos'),('lon','cf3hr','atmos'),('lat','cf3hr','atmos'),('tas','cf3hr','atmos'),('ts','cf3hr','atmos'),('tasmin','cf3hr','atmos'),('tasmax','cf3hr','atmos'),('psl','cf3hr','atmos'),('ps','cf3hr','atmos'),('uas','cf3hr','atmos'),('vas','cf3hr','atmos'),('sfcWind','cf3hr','atmos'),('hurs','cf3hr','atmos'),('huss','cf3hr','atmos'),('pr','cf3hr','atmos'),('prsn','cf3hr','atmos'),('prc','cf3hr','atmos'),('evspsbl','cf3hr','atmos'),('sbl','cf3hr','atmos'),('tauu','cf3hr','atmos'),('tauv','cf3hr','atmos'),('hfls','cf3hr','atmos'),('hfss','cf3hr','atmos'),('rlds','cf3hr','atmos'),('rlus','cf3hr','atmos'),('rsds','cf3hr','atmos'),('rsus','cf3hr','atmos'),('rsdscs','cf3hr','atmos'),('rsuscs','cf3hr','atmos'),('rldscs','cf3hr','atmos'),('rsdt','cf3hr','atmos'),('rsut','cf3hr','atmos'),('rlut','cf3hr','atmos'),('rlutcs','cf3hr','atmos'),('rsutcs','cf3hr','atmos'),('prw','cf3hr','atmos'),('clt','cf3hr','atmos'),('clwvi','cf3hr','atmos'),('clivi','cf3hr','atmos'),('rtmt','cf3hr','atmos'),('ccb','cf3hr','atmos'),('cct','cf3hr','atmos'),('ci','cf3hr','atmos'),('sci','cf3hr','atmos'),('fco2antt','cf3hr','atmos'),('fco2fos','cf3hr','atmos'),('fco2nat','cf3hr','atmos'),('cltc','cf3hr','atmos'),('zfull','cf3hr','atmos'),('zhalf','cf3hr','atmos'),('pfull','cf3hr','atmos'),('phalf','cf3hr','atmos'),('ta','cf3hr','atmos'),('h2o','cf3hr','atmos'),('clws','cf3hr','atmos'),('clis','cf3hr','atmos'),('clwc','cf3hr','atmos'),('clic','cf3hr','atmos'),('reffclws','cf3hr','atmos'),('reffclis','cf3hr','atmos'),('reffclwc','cf3hr','atmos'),('reffclic','cf3hr','atmos'),('grpllsprof','cf3hr','atmos'),('prcprof','cf3hr','atmos'),('prlsprof','cf3hr','atmos'),('prsnc','cf3hr','atmos'),('prlsns','cf3hr','atmos'),('reffgrpls','cf3hr','atmos'),('reffrainc','cf3hr','atmos'),('reffrains','cf3hr','atmos'),('reffsnowc','cf3hr','atmos'),('reffsnows','cf3hr','atmos'),('dtaus','cf3hr','atmos'),('dtauc','cf3hr','atmos'),('dems','cf3hr','atmos'),('demc','cf3hr','atmos'),('clc','cf3hr','atmos'),('cls','cf3hr','atmos'),('tas','cfSites','atmos'),('ts','cfSites','atmos'),('psl','cfSites','atmos'),('ps','cfSites','atmos'),('uas','cfSites','atmos'),('vas','cfSites','atmos'),('sfcWind','cfSites','atmos'),('hurs','cfSites','atmos'),('huss','cfSites','atmos'),('pr','cfSites','atmos'),('prsn','cfSites','atmos'),('prc','cfSites','atmos'),('evspsbl','cfSites','atmos'),('sbl','cfSites','atmos'),('tauu','cfSites','atmos'),('tauv','cfSites','atmos'),('hfls','cfSites','atmos'),('hfss','cfSites','atmos'),('rlds','cfSites','atmos'),('rlus','cfSites','atmos'),('rsds','cfSites','atmos'),('rsus','cfSites','atmos'),('rsdscs','cfSites','atmos'),('rsuscs','cfSites','atmos'),('rldscs','cfSites','atmos'),('rsdt','cfSites','atmos'),('rsut','cfSites','atmos'),('rlut','cfSites','atmos'),('rlutcs','cfSites','atmos'),('rsutcs','cfSites','atmos'),('prw','cfSites','atmos'),('clt','cfSites','atmos'),('clwvi','cfSites','atmos'),('clivi','cfSites','atmos'),('rtmt','cfSites','atmos'),('ccb','cfSites','atmos'),('cct','cfSites','atmos'),('ci','cfSites','atmos'),('sci','cfSites','atmos'),('fco2antt','cfSites','atmos'),('fco2fos','cfSites','atmos'),('fco2nat','cfSites','atmos'),('cl','cfSites','atmos'),('clw','cfSites','atmos'),('cli','cfSites','atmos'),('mc','cfSites','atmos'),('ta','cfSites','atmos'),('ua','cfSites','atmos'),('va','cfSites','atmos'),('hus','cfSites','atmos'),('hur','cfSites','atmos'),('wap','cfSites','atmos'),('zg','cfSites','atmos'),('rlu','cfSites','atmos'),('rsu','cfSites','atmos'),('rld','cfSites','atmos'),('rsd','cfSites','atmos'),('rlucs','cfSites','atmos'),('rsucs','cfSites','atmos'),('rldcs','cfSites','atmos'),('rsdcs','cfSites','atmos'),('tnt','cfSites','atmos'),('tnta','cfSites','atmos'),('tntmp','cfSites','atmos'),('tntscpbl','cfSites','atmos'),('tntr','cfSites','atmos'),('tntc','cfSites','atmos'),('tnhus','cfSites','atmos'),('tnhusa','cfSites','atmos'),('tnhusc','cfSites','atmos'),('tnhusd','cfSites','atmos'),('tnhusscpbl','cfSites','atmos'),('tnhusmp','cfSites','atmos'),('evu','cfSites','atmos'),('edt','cfSites','atmos'),('pfull','cfSites','atmos'),('phalf','cfSites','atmos')]
    pattern = re.compile(r'([\w.-]+)_([\w.-]+)_([\w.-]+)_([\w.-]+)_([\w.-]+)_([\d]+)-([\d]+).nc')
-   if (pattern.search(file).group(1), pattern.search(file).group(2), realm) in need_instant_time:
+   if (pattern.search(filename).group(1), pattern.search(filename).group(2), realm) in need_instant_time:
       return True
    else:
       return False
@@ -109,8 +110,8 @@ def _get_args():
                         action='version',
                         version="%(prog)s ({0})".format(__version__),
                         help='Program version')
-    return parser.parse_args(['/data/glipsl/test_time_axis/ta/','-c','-v'])
-#    return parser.parse_args()
+#    return parser.parse_args(['/data/glipsl/test_time_axis/ta/','-c','-v'])
+    return parser.parse_args()
 
 
 def _convert_time_units(unit, frequency):
@@ -149,7 +150,7 @@ def _last_date_checker(last, end):
         return True
 
 
-def _time_inc(frequency) :
+def _time_inc(frequency):
     """Return tuple used for time incrementation depending on frequency: (raising value, time unit)."""
     inc = {'subhr': 30,
            '3hr'  : 3,
@@ -160,62 +161,81 @@ def _time_inc(frequency) :
     return inc[frequency]
 
 
+def _rebuild_time_axis(start, length, instant, inc, ctx):
+    """Rebuild time axis from start date, depending on frequency and calendar."""
+    num_axis = start + np.arange(length, step = inc)
+    if not instant:
+        num_axis+=0.5
+    date_axis = num2date(num_axis, units = ctx.funits, calendar = ctx.calendar)
+    axis = date2num(date_axis, units = ctx.tunits, calendar = ctx.calendar)
+    return axis
+
+
+def _rebuild_time_bnds(start, length, inc, ctx):
+    """Rebuild time boundaries from start date, depending on frequency and calendar."""
+    num_axis_bnds = np.column_stack(((start + np.arange(length, step = inc)),(start + np.arange(length+1, step = inc)[1:])))
+    date_axis_bnds = num2date(num_axis_bnds, units = ctx.funits, calendar = ctx.calendar)
+    axis_bnds = date2num(date_axis_bnds, units = ctx.tunits, calendar = ctx.calendar)    
+    return axis_bnds
+
+
 def _wrapper(args):
     """Wrapper multiple arguments into multiprocessing function."""
     def _time_axis_processing(filename, ctx):
-        """Rebouild time axis according to calendar, frequency and filename dates."""
-        print_ctx = _PrintingContext()
-        _control_file(filename)
-        print_ctx.file = filename
+        """Time axis process in three step: rebuild, check and rewrite."""
+        # Extract start and end dates from filename
         start_date, end_date = _dates_from_filename(filename)
-        print_ctx.start = start_date.strftime("%d/%m/%Y %H:%M:%S")
-        print_ctx.end = end_date.strftime("%d/%m/%Y %H:%M:%S")
         start = date2num(start_date, units = ctx.funits, calendar = ctx.calendar)
+        # Set time length, True/False instant axis and incrementation in frequency units
         data = Dataset(ctx.directory+filename, 'r+')
         length = data.variables['time'].shape[0]
-        print_ctx.steps = length
-        # Rebuild time axis from start date in frequency units
+        instant = _is_instant_time_axis(filename, ctx.realm)
         inc = _time_inc(ctx.frequency)
-        num_axis = start + np.arange(length, step = inc)
-        # If not instant time axis add half offset
-        if not _is_instant_time_axis(filename, ctx.realm):
-            print_ctx.instant = 'No'
-            num_axis+=0.5
-        date_axis = num2date(num_axis, units = ctx.funits, calendar = ctx.calendar)
-        axis = date2num(date_axis, units = ctx.tunits, calendar = ctx.calendar)
-        # Control last time date with the end date from filename
+        # Instanciates object to display axis status
+        print_ctx = _PrintingContext()
+        print_ctx.file = filename
+        print_ctx.start = start_date.strftime("%d/%m/%Y %H:%M:%S")
+        print_ctx.end = end_date.strftime("%d/%m/%Y %H:%M:%S")
+        print_ctx.steps = length
+        if instant:
+            print_ctx.instant = 'Yes'
+        # Rebuild a proper time axis
+        axis = _rebuild_time_axis(start, length, instant, inc, ctx)
+        # Control consistency between last time date and end date from filename
         end = date2num(_dates_from_filename(filename)[1], units = ctx.tunits, calendar = ctx.calendar)
         last = axis[-1]-0.5
         if _last_date_checker(last, end):
             print_ctx.control = 'Processable'
-            ignored = False
+            # Rebuild proper time boundaries if needed
+            if 'time_bnds' in data.variables.keys():
+                axis_bnds = _rebuild_time_bnds(start, length, inc, ctx)
+            # Check time axis squareness
+            if ctx.check or ctx.write:
+                time = data.variables['time'][:]
+                if _time_checker(axis, time):
+                    print_ctx.time = 'Correct'
+                else:
+                    print_ctx.time = 'Mistaken'
+                # Check time boundaries squareness if needed
+                if 'time_bnds' in data.variables.keys():
+                    time_bnds = data.variables['time_bnds'][:,:]
+                    if _time_checker(axis_bnds, time_bnds): 
+                        print_ctx.bnds = 'Correct'
+                    else:
+                        print_ctx.bnds = 'Mistaken'
+            # Rewrite time axis depending on checking
+            if (ctx.write and not _time_checker(axis, time)) or ctx.force:
+                data.variables['time'][:] = axis
+                # Rewrite time units according to CMIP5 requirements (i.e., same units for all files)
+                data.variables['time'].units = ctx.tunits
+                # Rewrite time boundaries if needed
+                if 'time_bnds' in data.variables.keys():
+                    data.variables['time_bnds'][:,:] = axis_bnds
         else:
             print_ctx.control = 'Ignored because last timestep {0} is inconsistent with end date filename: {1}'.format(last, end)
-            ignored = True
-        # Check time axis squareness
-        if (ctx.check or ctx.write) and not ignored:
-            time = data.variables['time'][:]
-            if _time_checker(axis, time):
-                print_ctx.time = 'Correct'
-            else:
-                print_ctx.time = 'Mistaken'
-            # Check time boundaries if needed
-            if 'time_bnds' in data.variables.keys():
-                # Rebuild time boundaries if needed
-                num_axis_bnds = np.array([(start + np.arange(length, step = inc)), (start + np.arange(length+1, step = inc)[1:])])
-                date_axis_bnds = num2date(num_axis_bnds, units = ctx.funits, calendar = ctx.calendar)
-                axis_bnds = date2num(date_axis_bnds, units = ctx.tunits, calendar = ctx.calendar)      
-                time_bnds = data.variables['time_bnds'][:,:]
-                if _time_checker(axis_bnds, time_bnds): 
-                    print_ctx.bnds = 'Correct'
-                else:
-                    print_ctx.bnds = 'Mistaken'
-        # Rewrite time axis if needed
-        if (ctx.write and not _time_checker(axis, time) and not ignored) or ctx.force:
-            data.variables['time'][:] = axis
-            data.variables['time'].units = ctx.tunits
-            if 'time_bnds' in data.variables.keys():
-                data.variables['time_bnds'][:,:] = axis_bnds
+        # Close file
+        data.close()
+        # Return printing context
         return print_ctx
     return _time_axis_processing(*args)
 
@@ -227,7 +247,7 @@ class _PrintingContext(object):
         self.start = None
         self.end = None
         self.steps = None
-        self.instant = 'Yes'
+        self.instant = 'No'
         self.control = None
         self.time = None
         self.bnds = None
@@ -253,21 +273,27 @@ def main():
     """Main entry point."""
     # Initialise processing context
     ctx = _ProcessingContext(_get_args())
-    # Control directory syntax
+    # Control directory and filename syntax
     _control_directory(ctx)
+    print ''.center(100,'=')
+    print ''.center(100)
+    print ' DIRECTORY:'.ljust(40)+'{0}'.format(ctx.directory).rjust(60)
     # Set driving time properties (calendar, frequency and time units) from first file in directory
     _time_init(ctx)
+    sys.stdout.write('\r   |--> Files in process, please wait a minute...'.ljust(100)) ; sys.stdout.flush()
     # Process
     args = [(file,ctx) for file in _get_file_list(ctx)]
-    print args
     infos = ctx.pool.map(_wrapper, args)
+    sys.stdout.write('\r')
+    # Print axis status
     for i in range(len(infos)):
         print '   |'.ljust(100)
         print '   |--> File:'.ljust(40)+'{0}'.format(infos[i].file).rjust(60)
-        print '   |     |--> Start:'.ljust(40)+'{0}'.format(infos[i].start).rjust(60)
-        print '   |     |--> End:'.ljust(40)+'{0}'.format(infos[i].end).rjust(60)
-        print '   |     |--> Timesteps:'.ljust(40)+'{0}'.format(infos[i].steps).rjust(60)
-        print '   |     |--> Instant time:'.ljust(40)+'{0}'.format(infos[i].instant).rjust(60)
+        if ctx.is_verbose:
+            print '   |     |--> Start:'.ljust(40)+'{0}'.format(infos[i].start).rjust(60)
+            print '   |     |--> End:'.ljust(40)+'{0}'.format(infos[i].end).rjust(60)
+            print '   |     |--> Timesteps:'.ljust(40)+'{0}'.format(infos[i].steps).rjust(60)
+            print '   |     |--> Instant time:'.ljust(40)+'{0}'.format(infos[i].instant).rjust(60)
         print '   |     |--> Last date checking:'.ljust(40)+'{0}'.format(infos[i].control).rjust(60)
         print '   |     |--> Time axis checking:'.ljust(40)+'{0}'.format(infos[i].time).rjust(60)
         print '   |     |--> Time boundaries checking:'.ljust(40)+'{0}'.format(infos[i].bnds).rjust(60)
