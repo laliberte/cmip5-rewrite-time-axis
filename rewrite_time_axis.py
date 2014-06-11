@@ -11,11 +11,11 @@ import numpy as np
 from datetime import datetime
 from argparse import RawTextHelpFormatter
 
-#################
-### FUNCTIONS ###
-#################
+#############################
+### CLASSES AND FUNCTIONS ###
+#############################
 
-def printFormat(text, variable) :
+def PrintFormat(text, variable) :
    """Print text line, left justify, with optional variable."""
    print text.ljust(32,'-')+'> %s' % variable
 
@@ -80,16 +80,16 @@ def TimeChecker(right_axis, test_axis) :
    else :
       return False
 
-######################
-### COMMAND PARSER ###
-######################
+###########################
+### COMMAND-LINE PARSER ###
+###########################
 
 # Program version
-__version__ = 'v0.1 '+'-'.join(['2014','05','12'])
+__version__ = 'v0.2 '+'-'.join(['2014','06','03'])
 
 # Parse command-line arguments
 parser = argparse.ArgumentParser( \
-   description='Rewrite and/or check CMIP5 file time axis on CICLAD filesystem, considering (i) uncorrupted filename period dates and (ii) properly-defined times units, time calendar and frequency NetCDF attributes.',\
+   description='Rewrite and/or check CMIP5 file time axis on CICLAD filesystem, considering \n(i) uncorrupted filename period dates and \n(ii) properly-defined times units, time calendar and frequency NetCDF attributes.',\
    epilog = 'Developped by G. Levavasseur (CNRS/IPSL)',\
    formatter_class = RawTextHelpFormatter\
    )
@@ -110,8 +110,9 @@ verbose = args.verbose
 
 ### CONTROL DIRECTORY SYNTAX ###
 path = args.directory
+dir_pattern = re.compile(r'/prodigfs/esg/CMIP5/merge/([\w.-]+)/([\w.-]+)/([\w.-]+)/([\w.-]+)/([\w.-]+)/([\w.-]+)/([\w.-]+)/([\w.-]+)/([\w.-]+)/')
 #dir_pattern = re.compile(r'/prodigfs/esg/CMIP5/merge/([\w.-]+)/([\w.-]+)/([\w.-]+)/([\w.-]+)/([\w.-]+)/([\w.-]+)/([\w.-]+)/latest/([\w.-]+)/')
-dir_pattern = re.compile(r'/data/glipsl/test_time_axis/([\w.-]+)/')
+#dir_pattern = re.compile(r'/data/glipsl/test_time_axis/([\w.-]+)/')
 if re.match(dir_pattern, path) == None :
    print 'ERROR: Invalid directory (%s does not follow CMIP5 DRS.)' % path
    sys.exit(1)
@@ -142,28 +143,28 @@ for file in files :
       freq = f.frequency
       time_units = time.units
       if verbose :
-         printFormat('  Reference frequency ', freq)
-         printFormat('  Reference time units ', time_units)
+         PrintFormat('  Reference frequency ', freq)
+         PrintFormat('  Reference time units ', time_units)
       if time.getCalendar() == 'None' :
          print 'ERROR: Unknown calendar (%s is not supported).' % time.calendar
       else :
          cdtime.DefaultCalendar = time.getCalendar()
          if verbose :
-            printFormat('  Initialize CDMS calendar ', time.calendar)
+            PrintFormat('  Initialize CDMS calendar ', time.calendar)
 
    ### DEFINE TIME AXIS ### 
    # Axis parameters depends on frequency and time axis type (instant or averaged)
    inc    = TimeInc(freq)[0] # Time increment
    unit   = TimeInc(freq)[1] # Time unit
    if verbose :
-      printFormat('  Instant time axis ', isInstantTimeAxis(file))
+      PrintFormat('  Instant time axis ', isInstantTimeAxis(file))
 
    ### DEFINE CDMS START AND END PERIOD DATES FROM FILENAME ###
    start, end = DatesFromFilename(file)
    start, end = DateConvert(start), DateConvert(end)
    if verbose :
-      printFormat('  File goes from ', start)
-      printFormat('              to ', end)
+      PrintFormat('  File goes from ', start)
+      PrintFormat('              to ', end)
 
    ### COMPUTE TIME AXIS AND BOUNDARIES ###
    # Following time unit and previous default calendar:
@@ -187,7 +188,7 @@ for file in files :
 
    ### CHECK TIME AXIS, TIME BOUNDARIES AND END DATE ###
    if args.check or args.write :
-      printFormat('  Time boundaries exist ', 'time_bnds' in f.variables.keys()) 
+      PrintFormat('  Time boundaries exist ', 'time_bnds' in f.variables.keys()) 
       sys.stdout.write('  Check file time boundaries '.ljust(32,'-')) ; sys.stdout.flush()
       check = TimeChecker(axis_bnds, time_bnds)
       if check : 
